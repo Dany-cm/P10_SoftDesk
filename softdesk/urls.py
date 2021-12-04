@@ -15,7 +15,12 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
+from rest_framework_simplejwt.views import TokenObtainPairView
+
+from authentification.views import RegisterView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('api/signup/', RegisterView.as_view(), name='signup'),
+    path('api/login/', TokenObtainPairView.as_view(), name='login'),
 ]
