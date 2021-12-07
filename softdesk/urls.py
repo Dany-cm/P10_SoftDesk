@@ -14,13 +14,24 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path
+from django.urls import path, include
 from rest_framework_simplejwt.views import TokenObtainPairView
 
 from authentification.views import RegisterView
+
+from rest_framework_nested import routers
+
+from project.views import ProjectViewSet
+
+router = routers.SimpleRouter()
+router.register('projects', ProjectViewSet)
+
+projects_router = routers.NestedSimpleRouter(router, 'projects', lookup='project')
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/signup/', RegisterView.as_view(), name='signup'),
     path('api/login/', TokenObtainPairView.as_view(), name='login'),
+    path('api/', include(router.urls)),
+    path('api/', include(projects_router.urls)),
 ]
