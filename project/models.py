@@ -17,7 +17,7 @@ class Contributor(models.Model):
 
     user = models.ForeignKey(to=settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     project = models.ForeignKey(to=Project, on_delete=models.CASCADE, related_name='contributor')
-    role = models.CharField(choices=ROLE, max_length=128)
+    role = models.CharField(default="CONTRIBUTOR", choices=ROLE, max_length=128)
 
 
 class Issues(models.Model):
@@ -32,7 +32,7 @@ class Issues(models.Model):
     project = models.ForeignKey(to=Project, on_delete=models.CASCADE)
     status = models.CharField(choices=TYPE_STATUS, max_length=128)
     author = models.ForeignKey(to=settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    assignee = models.ForeignKey(default="CONTRIBUTOR", to=Contributor, on_delete=models.CASCADE)
+    assignee = models.ForeignKey(to=Contributor, on_delete=models.CASCADE)
     created_time = models.DateTimeField(auto_now_add=True)
 
 
