@@ -3,8 +3,8 @@ from rest_framework.exceptions import ValidationError
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.viewsets import ModelViewSet
 
-from project.models import Project, Contributor
-from project.serializers import ProjectSerializer, ContributorSerializer
+from project.models import Project, Contributor, Issues, Comments
+from project.serializers import ProjectSerializer, ContributorSerializer, IssuesSerializer, CommentsSerializer
 
 
 class ProjectViewSet(ModelViewSet):
@@ -55,3 +55,29 @@ class ContributorViewSet(ModelViewSet):
         else:
             request.data['project'] = self.kwargs['project_pk']
             return super(ContributorViewSet, self).create(request, *args, **kwargs)
+
+
+class IssuesViewSet(ModelViewSet):
+    serializer_class = IssuesSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return Issues.objects.filter(project=self.kwargs['project_pk']).order_by('id')
+
+    def create(self, request, *args, **kwargs):
+        request.data["author"] = request.user.id
+        request.data["project"] = kwargs["project_pk"]
+        return super(IssuesViewSet, self).create(request, *args, **kwargs)
+
+
+class CommentsViewSet(ModelViewSet):
+    serializer_class = CommentsSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return Comments.objects.filter(issue=self.kwargs['issue_pk']).order_by('id')
+
+    def create(self, request, *args, **kwargs):
+        request.data["author"] = request.user.pk
+        request.data["issue"] = kwargs["issue_pk"]
+        return super(CommentsViewSet, self).create(request, *args, **kwargs)
