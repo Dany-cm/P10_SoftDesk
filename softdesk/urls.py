@@ -21,12 +21,13 @@ from authentification.views import RegisterView
 
 from rest_framework_nested import routers
 
-from project.views import ProjectViewSet
+from project.views import ProjectViewSet, ContributorViewSet
 
 router = routers.SimpleRouter()
 router.register('projects', ProjectViewSet)
 
 projects_router = routers.NestedSimpleRouter(router, 'projects', lookup='project')
+projects_router.register('users', ContributorViewSet, basename='projects')
 
 urlpatterns = [
     path('admin/', admin.site.urls),
