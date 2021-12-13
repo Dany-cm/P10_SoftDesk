@@ -4,6 +4,8 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.viewsets import ModelViewSet
 
 from project.models import Project, Contributor, Issues, Comments
+from project.permissions import HasProjectPermissions, HasContributorPermissions, HasIssuePermissions, \
+    HasCommentPermissions
 from project.serializers import ProjectSerializer, ContributorSerializer, IssuesSerializer, CommentsSerializer
 
 
@@ -15,7 +17,7 @@ class ProjectViewSet(ModelViewSet):
     """
     queryset = Project.objects.all()
     serializer_class = ProjectSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, HasProjectPermissions]
 
     def get_queryset(self):
         """
@@ -36,7 +38,7 @@ class ProjectViewSet(ModelViewSet):
 
 class ContributorViewSet(ModelViewSet):
     serializer_class = ContributorSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, HasContributorPermissions]
 
     def get_queryset(self):
         return Contributor.objects.filter(project_id=self.kwargs['project_pk']).order_by('id')
@@ -59,7 +61,7 @@ class ContributorViewSet(ModelViewSet):
 
 class IssuesViewSet(ModelViewSet):
     serializer_class = IssuesSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, HasIssuePermissions]
 
     def get_queryset(self):
         return Issues.objects.filter(project=self.kwargs['project_pk']).order_by('id')
@@ -72,7 +74,7 @@ class IssuesViewSet(ModelViewSet):
 
 class CommentsViewSet(ModelViewSet):
     serializer_class = CommentsSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, HasCommentPermissions]
 
     def get_queryset(self):
         return Comments.objects.filter(issue=self.kwargs['issue_pk']).order_by('id')
