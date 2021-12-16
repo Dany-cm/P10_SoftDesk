@@ -1,6 +1,8 @@
 # Create your views here.
+from rest_framework import status
 from rest_framework.exceptions import ValidationError
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 
 from project.models import Project, Contributor, Issues, Comments
@@ -23,7 +25,7 @@ class ProjectViewSet(ModelViewSet):
         """
         :return Make sure user is the author of the project:
         """
-        return Project.objects.filter(author=self.request.user).order_by('id')
+        return Project.objects.filter(contributor__user=self.request.user).order_by('id')
 
     def create(self, request, *args, **kwargs):
         """
@@ -31,9 +33,16 @@ class ProjectViewSet(ModelViewSet):
         :param kwargs:
         :return: 201 if successful else 400
         """
+        data = request.data.copy()
+        data["author"] = request.user.id
+        serialized_data = ProjectSerializer(data=data)
+        serialized_data.is_valid(raise_exception=True)
+        project = serialized_data.save()
 
-        request.data["author"] = request.user.id
-        return super(ProjectViewSet, self).create(request, *args, **kwargs)
+        contributor = Contributor.objects.create(user=request.user, project=project, role='AUTHOR')
+        contributor.save()
+
+        return Response(serialized_data.data, status=status.HTTP_201_CREATED)
 
 
 class ContributorViewSet(ModelViewSet):
