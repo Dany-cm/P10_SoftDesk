@@ -58,6 +58,9 @@ class ContributorViewSet(ModelViewSet):
             for contributor_user in Contributor.objects.filter(project_id=self.kwargs['project_pk']):
                 contributor_list.append(contributor_user.user_id)
 
+            if 'user' not in request.data:
+                raise ValidationError("Veuillez ajouter un utilisateur")
+
             if request.data['user'] in contributor_list:
                 raise ValidationError("Le contributeur est déjà dans le projet")
 
@@ -76,8 +79,20 @@ class IssuesViewSet(ModelViewSet):
         return Issues.objects.filter(project=self.kwargs['project_pk']).order_by('id')
 
     def create(self, request, *args, **kwargs):
-        request.data["author"] = request.user.id
-        request.data["project"] = kwargs["project_pk"]
+
+        contributor_list = []
+        for contributor_user in Contributor.objects.filter(project_id=self.kwargs['project_pk']):
+            contributor_list.append(contributor_user.user_id)
+
+        assignee_user_id = request.data.get('assignee', request.user.id)
+
+        if assignee_user_id not in contributor_list:
+            raise ValidationError("L'utilisateur assignée n'est pas dans la liste des contributeurs du projet")
+
+        request.data['project'] = self.kwargs['project_pk']
+        request.data['author'] = request.user.id
+        request.data['assignee'] = assignee_user_id
+
         return super(IssuesViewSet, self).create(request, *args, **kwargs)
 
 
