@@ -34,6 +34,11 @@ class HasIssuePermissions(BasePermission):
             return True
         return False
 
+    def has_object_permission(self, request, view, obj):
+        if request.method in SAFE_METHODS:
+            return True
+        return request.user == obj.author
+
 
 class HasCommentPermissions(BasePermission):
 
@@ -42,3 +47,8 @@ class HasCommentPermissions(BasePermission):
         if project in Project.objects.filter(contributor__user=request.user):
             return True
         return False
+
+    def has_object_permission(self, request, view, obj):
+        if request.method in SAFE_METHODS:
+            return True
+        return request.user == obj.author

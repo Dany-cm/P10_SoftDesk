@@ -44,6 +44,10 @@ class ProjectViewSet(ModelViewSet):
 
         return Response(serialized_data.data, status=status.HTTP_201_CREATED)
 
+    def update(self, request, *args, **kwargs):
+        request.data['author'] = request.user.id
+        return super(ProjectViewSet, self).update(request, *args, **kwargs)
+
 
 class ContributorViewSet(ModelViewSet):
     serializer_class = ContributorSerializer
@@ -95,6 +99,12 @@ class IssuesViewSet(ModelViewSet):
 
         return super(IssuesViewSet, self).create(request, *args, **kwargs)
 
+    def update(self, request, *args, **kwargs):
+        request.data['project'] = self.kwargs['project_pk']
+        request.data['author'] = request.user.id
+        request.data['assignee'] = request.user.id
+        return super(IssuesViewSet, self).update(request, *args, **kwargs)
+
 
 class CommentsViewSet(ModelViewSet):
     serializer_class = CommentsSerializer
@@ -107,3 +117,8 @@ class CommentsViewSet(ModelViewSet):
         request.data["author"] = request.user.pk
         request.data["issue"] = kwargs["issue_pk"]
         return super(CommentsViewSet, self).create(request, *args, **kwargs)
+
+    def update(self, request, *args, **kwargs):
+        request.data["author"] = request.user.pk
+        request.data["issue"] = kwargs["issue_pk"]
+        return super(CommentsViewSet, self).update(request, *args, **kwargs)
