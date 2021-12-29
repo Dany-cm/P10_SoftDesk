@@ -35,6 +35,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'authentification',
     'project',
     'rest_framework',
 ]
@@ -131,3 +132,5 @@ REST_FRAMEWORK = {
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(hours=5),
 }
+
+AUTH_USER_MODEL = 'authentification.CustomUser'
